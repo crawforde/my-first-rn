@@ -1,42 +1,16 @@
 import React from 'react';
 import { ListView, TouchableOpacity, StyleSheet, Text, View } from 'react-native';
 var _ = require('underscore');
+import { StackNavigator } from 'react-navigation';
 
+class App extends React.Component {
+  static navigationOptions = (props) => ({
+	   title: 'Home Page',
+     headerRight: <Text style={{marginRight: 15}} onPress={()=>props.navigation.navigate('Page2')}>Page 2</Text>
+  });
 
-export default class App extends React.Component {
-  constructor(){
-    super();
-    var dataSource = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => (r1 != r2)
-    });
-    var data = ['Loading...'];
-    this.state = {
-      data: data,
-      dataSource: dataSource.cloneWithRows(data)
-    };
-  }
-
-  componentDidMount(){
-    fetch('https://horizons-json-cors.s3.amazonaws.com/products.json')
-    .then((resp)=>{
-      return resp.json();
-    })
-    .then((json)=>{
-      return Promise.all(json.map((item)=>(fetch(item.url))));
-    })
-    .then((responses)=>{
-      return Promise.all(responses.map((resp)=>resp.json()));
-    })
-    .then((items)=>{
-      const list = items.map((item)=>(item.name + ': ' + item.priceCents));
-      this.setState({
-        data: list,
-        dataSource: this.state.dataSource.cloneWithRows(list)
-      });
-    })
-    .catch((error)=>{
-      alert('Error: ' + error);
-    })
+  constructor(props){
+    super(props);
   }
 
   render() {
@@ -47,21 +21,56 @@ export default class App extends React.Component {
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <ListView
-          renderRow={(item,sectionID,rowID)=>(
-            <View key={rowID} style={{
-              alignItems: 'center'
-            }}>
-              <Text style={{
-                fontSize: 10
-              }}>
-                {item}
-              </Text>
-            </View>
-          )}
-          dataSource={this.state.dataSource}
-        />
+        <Text style={{fontSize: 20}}>Page 1</Text>
+        <Text onPress={()=>this.props.navigation.navigate('Page2')}>Go to Page 2</Text>
       </View>
+    );
+  }
+}
+
+class Second extends React.Component {
+  static navigationOptions = (props) => ({
+     title: 'Page 2',
+     headerRight: <Text style={{marginRight: 15}} onPress={()=>props.navigation.navigate('Page3')}>Page 3</Text>
+  });
+
+  constructor(props){
+    super(props);
+  }
+
+  render() {
+    return (
+      <View style={{
+        flex: 1,
+        marginTop: 20,
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+			     <Text style={{fontSize: 20}}>Page 2</Text>
+		  </View>
+    );
+  }
+}
+
+class Third extends React.Component {
+  static navigationOptions = (props) => ({
+     title: 'Page 3'
+  });
+
+  constructor(props){
+    super(props);
+  }
+
+  render() {
+    return (
+      <View style={{
+        flex: 1,
+        marginTop: 20,
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+			     <Text style={{fontSize: 20}}>Page 3</Text>
+		  </View>
     );
   }
 }
@@ -75,9 +84,13 @@ const styles = StyleSheet.create({
   },
 });
 
+const Navigator = StackNavigator({
+	Home: {screen: App},
+	Page2: {screen: Second},
+  Page3: {screen: Third}
+});
 
-
-
+export default Navigator;
 
 // NUMBER WITH + AND - BUTTONS TO CHANGE IT ///////////////////////////////////
 /*
